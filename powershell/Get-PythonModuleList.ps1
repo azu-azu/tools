@@ -1,7 +1,8 @@
-# 指定パッケージ配下の .py ファイルからドット区切りのモジュール名を一覧生成する。
-# PyInstaller の hiddenimports などに貼り付けられる形式で出力する。
+# Generate dotted module names from the .py files under the target package.
+# Output is formatted for pasting into e.g. PyInstaller's hiddenimports.
+# The result is printed to the screen and also copied to the clipboard.
 
-# 除外するファイル名。増やしたいときはこの配列に追記する。
+# File names to exclude. Add more entries to this array as needed.
 $excludeNames = @(
     "__init__.py"
 )
@@ -9,7 +10,7 @@ $excludeNames = @(
 $packageDir = Split-Path $PSScriptRoot -Parent
 $srcDir = Split-Path $packageDir -Parent
 
-Get-ChildItem $packageDir -Recurse -Filter *.py |
+$lines = Get-ChildItem $packageDir -Recurse -Filter *.py |
 Where-Object {
     $_.Name -notin $excludeNames -and
     $_.FullName -notlike "$PSScriptRoot\*"
@@ -23,3 +24,10 @@ ForEach-Object {
 
     "    `"$module`","
 }
+
+# Print to screen
+$lines
+
+# Copy to clipboard
+$lines | Set-Clipboard
+Write-Host "Copied $($lines.Count) module name(s) to the clipboard." -ForegroundColor Green
